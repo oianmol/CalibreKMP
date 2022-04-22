@@ -18,7 +18,6 @@ import welcome.Language
 import welcome.LanguageDropdownModel
 import java.awt.FileDialog
 import java.io.File
-import javax.swing.JFileChooser
 
 
 @Composable
@@ -34,27 +33,42 @@ fun WelcomeWizard(window: ComposeWindow) {
 
 @Composable
 fun FileLocationChooser(window: ComposeWindow) {
-    val currentUsersHomeDir = System.getProperty("user.home")
-    var otherFolder by remember { mutableStateOf(currentUsersHomeDir + File.separator.toString() + "Calibre Library") }
 
     Column(Modifier.padding(24.dp)) {
         Text("Choose a location for your books. When you add books to calibre, they will be copied here. Use an empty folder for a new calibre library:")
-        Row {
-            Button(onClick = {
+        FolderChooserButtons(window)
+        Text("If a calibre library already exists at the newly selected location, calibre will use it automatically")
+    }
+}
 
-            }, colors = ButtonDefaults.buttonColors(backgroundColor = Color.Transparent)) {
-                Text(otherFolder)
-            }
+@Composable
+private fun FolderChooserButtons(
+    window: ComposeWindow
+) {
+    val currentUsersHomeDir = System.getProperty("user.home")
+    var otherFolder by remember { mutableStateOf(currentUsersHomeDir + File.separator.toString() + "Calibre Library") }
 
-            Button(onClick = {
-                val fileDialog = FileDialog(window)
-                fileDialog.isMultipleMode = false
-                fileDialog.mode = FileDialog.LOAD
-                fileDialog.isVisible = true
-                otherFolder = fileDialog.files.firstOrNull()?.absolutePath ?: ""
-            }, colors = ButtonDefaults.buttonColors(backgroundColor = Color.Transparent)) {
-                Text("Change")
-            }
+    Row {
+        Button(
+            onClick = {
+
+            },
+            colors = ButtonDefaults.buttonColors(backgroundColor = Color.Transparent),
+            modifier = Modifier.fillMaxWidth(0.6f)
+        ) {
+            Text(otherFolder)
+        }
+
+        Spacer(Modifier.width(24.dp))
+
+        Button(onClick = {
+            val fileDialog = FileDialog(window)
+            fileDialog.isMultipleMode = false
+            fileDialog.mode = FileDialog.LOAD
+            fileDialog.isVisible = true
+            otherFolder = fileDialog.files.firstOrNull()?.absolutePath ?: ""
+        }, modifier = Modifier.fillMaxWidth(0.4f)) {
+            Text("Change")
         }
     }
 }
