@@ -28,6 +28,52 @@ fun WelcomeWizard(window: ComposeWindow) {
         LanguageDropDown()
         Spacer(Modifier.height(48.dp))
         FileLocationChooser(window)
+        Spacer(Modifier.weight(1f))
+        Text(
+            "If you are moving calibre from an old computer to a new one, please read the instructions.",
+            Modifier.padding(24.dp)
+        )
+        Divider()
+
+        NavigationButtons()
+    }
+}
+
+@Composable
+fun NavigationButtons() {
+
+    Row(horizontalArrangement = Arrangement.End, modifier = Modifier.fillMaxWidth()) {
+        Button(
+            onClick = {
+
+            },
+            colors = ButtonDefaults.buttonColors(backgroundColor = Color.Transparent),
+        ) {
+            Text("< Back")
+        }
+
+        Spacer(Modifier.width(12.dp))
+
+        Button(
+            onClick = {
+
+            },
+            colors = ButtonDefaults.buttonColors(backgroundColor = Color.Transparent),
+        ) {
+            Text("Next >")
+        }
+        Spacer(Modifier.width(12.dp))
+
+        Button(
+            onClick = {
+
+            },
+            colors = ButtonDefaults.buttonColors(backgroundColor = Color.Transparent),
+        ) {
+            Text("Cancel")
+        }
+        Spacer(Modifier.width(12.dp))
+
     }
 }
 
@@ -37,7 +83,7 @@ fun FileLocationChooser(window: ComposeWindow) {
     Column(Modifier.padding(24.dp)) {
         Text("Choose a location for your books. When you add books to calibre, they will be copied here. Use an empty folder for a new calibre library:")
         FolderChooserButtons(window)
-        Text("If a calibre library already exists at the newly selected location, calibre will use it automatically")
+        Text("If a calibre library already exists at the newly selected location, calibre will use it automatically.")
     }
 }
 
