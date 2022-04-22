@@ -1,19 +1,13 @@
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.wrapContentSize
-import androidx.compose.foundation.layout.padding
-import androidx.compose.ui.Alignment
-import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.awt.ComposeWindow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
@@ -22,24 +16,46 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import welcome.Language
 import welcome.LanguageDropdownModel
+import java.awt.FileDialog
+import java.io.File
+import javax.swing.JFileChooser
+
 
 @Composable
-fun WelcomeWizard() {
+fun WelcomeWizard(window: ComposeWindow) {
     Column {
         WWHeadline()
         Divider()
-        ChooseLanguage()
+        LanguageDropDown()
+        Spacer(Modifier.height(48.dp))
+        FileLocationChooser(window)
     }
 }
 
 @Composable
-fun ChooseLanguage() {
-    Row(
-        Modifier.padding(24.dp),
-        horizontalArrangement = androidx.compose.foundation.layout.Arrangement.Center
-    ) {
-        Text("Choose your language: ")
-        LanguageDropDown()
+fun FileLocationChooser(window: ComposeWindow) {
+    val currentUsersHomeDir = System.getProperty("user.home")
+    var otherFolder by remember { mutableStateOf(currentUsersHomeDir + File.separator.toString() + "Calibre Library") }
+
+    Column(Modifier.padding(24.dp)) {
+        Text("Choose a location for your books. When you add books to calibre, they will be copied here. Use an empty folder for a new calibre library:")
+        Row {
+            Button(onClick = {
+
+            }, colors = ButtonDefaults.buttonColors(backgroundColor = Color.Transparent)) {
+                Text(otherFolder)
+            }
+
+            Button(onClick = {
+                val fileDialog = FileDialog(window)
+                fileDialog.isMultipleMode = false
+                fileDialog.mode = FileDialog.LOAD
+                fileDialog.isVisible = true
+                otherFolder = fileDialog.files.firstOrNull()?.absolutePath ?: ""
+            }, colors = ButtonDefaults.buttonColors(backgroundColor = Color.Transparent)) {
+                Text("Change")
+            }
+        }
     }
 }
 
@@ -51,22 +67,24 @@ fun LanguageDropDown() {
 
     LaunchedEffect(true) {
         withContext(Dispatchers.IO) {
-            val langStream = javaClass.classLoader.getResourceAsStream("setup/iso_639-3.json")
+            val langStream = javaClass.classLoader?.getResourceAsStream("setup/iso_639-3.json")
             langStream?.let {
                 languages = Gson().fromJson(it.reader(), LanguageDropdownModel::class.java)
-                selectedIndex = languages?.languages?.indexOfFirst { it?.alpha_2 == "en" } ?: 0
-                print(languages)
+                selectedIndex = languages?.languages?.indexOfFirst { it.alpha_2 == "en" } ?: 0
             }
         }
     }
 
     androidx.compose.foundation.layout.Box(
-        modifier = Modifier.fillMaxSize().wrapContentSize(Alignment.TopStart)
+        modifier = Modifier.padding(24.dp)
     ) {
-        Button(onClick = {
-            isOpen = true
-        }) {
-            Text(languages?.languages?.get(selectedIndex)?.name ?: "Not Selected")
+        Row() {
+            Text("Choose your language: ", Modifier.align(Alignment.CenterVertically))
+            Button(onClick = {
+                isOpen = true
+            }, colors = ButtonDefaults.buttonColors(backgroundColor = Color.Transparent)) {
+                Text(languages?.languages?.get(selectedIndex)?.name ?: "Not Selected")
+            }
         }
 
         if (isOpen) {
