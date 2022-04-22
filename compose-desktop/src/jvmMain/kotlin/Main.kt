@@ -9,13 +9,13 @@ import com.baseio.kmm.di.initSharedDependencies
 @Preview
 fun App() {
     MaterialTheme {
-        TrendingReposListScreen(TrendingReposVM())
+        WelcomeWizard()
     }
 }
 
 fun main() = application {
     initSharedDependencies()
-    Window(onCloseRequest = ::exitApplication) {
+    Window(onCloseRequest = ::exitApplication, title = "CalibreKMM Welcome wizard") {
         App()
     }
 }

@@ -1,16 +1,8 @@
-# PraxisKMM
+# CalibreKMM
 
-Minimal **Kotlin Multiplatform** project with SwiftUI, Jetpack Compose, Compose for Wear OS,. Currently running on
+An attempt/research clone for calibre app written in kotlin multiplatform.
 
-* Desktop JVM (Jetpack Compose) ✅ DONE
-* Android (Jetpack Compose) ✅ DONE
-* Android App Widget 🚧 TODO
-* Wear OS (Compose for Wear OS) ✅ DONE
-* iOS (SwiftUI) ✅ DONE
-* iOS App Widget (SwiftUI) 🚧 TODO
-* watchOS (SwiftUI) ✅ DONE
-* macOS (SwiftUI) ✅ DONE
-* Web (ReactJS) ✅ DONE
+* Plan to target Desktop JVM with (Jetpack Compose)
 
 ### TODOs
 
@@ -24,29 +16,6 @@ Minimal **Kotlin Multiplatform** project with SwiftUI, Jetpack Compose, Compose 
 
 <img src="art/art7.png" alt="drawing" style="width:200px;"/>
 
-* Android Wear OS (Compose for Wear OS)
-
-<img src="art/art6.png" alt="drawing" style="width:200px;"/>
-
-* Android (Jetpack Compose)
-
-<img src="art/art5.png" alt="drawing" style="width:200px;"/>
-
-* watchOS (SwiftUI)
-
-<img src="art/art2.png" alt="drawing" style="width:200px;"/>
-
-* iOS (SwiftUI)
-
-<img src="art/art1.png" alt="drawing" style="width:200px;"/>
-
-* macOS (SwiftUI)
-
-<img src="art/art3.png" alt="drawing" style="width:200px;"/>
-
-* Web (ReactJS)
-
-<img src="art/art4.png" alt="drawing" style="width:200px;"/>
 
 ### Languages, libraries and tools used
 

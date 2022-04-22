@@ -14,6 +14,23 @@ repositories {
   maven(url = "https://maven.pkg.jetbrains.space/public/p/compose/dev")
 }
 
+allprojects {
+  tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile>().all {
+    kotlinOptions {
+      freeCompilerArgs = freeCompilerArgs +  listOf("-Xuse-experimental=kotlin.ExperimentalUnsignedTypes",
+        "-Xuse-experimental=kotlinx.coroutines.ExperimentalCoroutinesApi",
+        "-Xuse-experimental=kotlinx.coroutines.InternalCoroutinesApi",
+        "-Xuse-experimental=androidx.compose.animation.ExperimentalAnimationApi",
+        "-Xuse-experimental=androidx.compose.ExperimentalComposeApi",
+        "-Xuse-experimental=androidx.compose.material.ExperimentalMaterialApi",
+        "-Xuse-experimental=androidx.compose.runtime.ExperimentalComposeApi",
+        "-Xuse-experimental=androidx.compose.ui.ExperimentalComposeUiApi",
+        "-Xuse-experimental=coil.annotation.ExperimentalCoilApi",
+        "-Xuse-experimental=kotlinx.serialization.ExperimentalSerializationApi",
+        "-Xuse-experimental=com.google.accompanist.pager.ExperimentalPagerApi")
+    }
+  }
+}
 
 kotlin {
   jvm {
@@ -26,6 +43,7 @@ kotlin {
     val jvmMain by getting {
       dependencies {
         implementation(project(":shared"))
+        implementation("com.google.code.gson:gson:2.9.0")
         implementation(compose.desktop.currentOs)
       }
     }
