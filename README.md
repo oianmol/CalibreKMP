@@ -14,7 +14,7 @@ An attempt/research clone for calibre app written in kotlin multiplatform.
 
 * Compose Desktop (Compose for Desktop)
 
-<img src="art/art1.png" alt="drawing" style="width:200px;"/>
+<img src="art/art1.png" alt="drawing" style="width:400px;"/>
 
 
 ### Languages, libraries and tools used
