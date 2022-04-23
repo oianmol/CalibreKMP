@@ -8,7 +8,6 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.awt.ComposeWindow
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
@@ -17,10 +16,10 @@ import com.baseio.kmm.welcome.LanguageDropdownModel
 import com.baseio.kmm.welcome.LanguageLoader
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import theme.CalibreColorPalette
 import theme.CalibreColorProvider
 import java.awt.FileDialog
 import java.io.File
+import javax.swing.JFileChooser
 
 
 @Composable
@@ -129,11 +128,29 @@ private fun FolderChooserButtons(
 
         Button(
             onClick = {
-                val fileDialog = FileDialog(window)
-                fileDialog.isMultipleMode = false
-                fileDialog.mode = FileDialog.LOAD
-                fileDialog.isVisible = true
-                otherFolder = fileDialog.files.firstOrNull()?.absolutePath ?: ""
+                val dir = if (System.getProperty("os.name").contains("Mac")) {
+                    System.setProperty("apple.awt.fileDialogForDirectories", "true")
+                    val dialog = FileDialog(window)
+                    dialog.isVisible = true
+                    val name = dialog.file
+                    val dir = dialog.directory
+                    if (name == null || dir == null) null else File(dialog.directory, dialog.file)
+                } else {
+                    val chooser = JFileChooser()
+                    chooser.fileSelectionMode = JFileChooser.DIRECTORIES_ONLY
+                    chooser.dialogTitle = "Choose destination"
+                    val result = chooser.showOpenDialog(null)
+                    if (result == JFileChooser.APPROVE_OPTION) {
+                        val dir = chooser.selectedFile
+                        if (dir == null) null
+                        if (dir!!.absolutePath.trim { it <= ' ' }.isEmpty()) null else dir
+                    } else {
+                        null
+                    }
+                }
+
+
+                otherFolder = dir?.absolutePath ?: ""
             }, colors = ButtonDefaults.buttonColors(
                 backgroundColor = CalibreColorProvider.colors.buttonColor
             ),
