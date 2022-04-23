@@ -1,5 +1,0 @@
-target 'macOS' do
-   use_modular_headers!
-   pod 'shared', :path => '../shared'
-   pod 'KMPNativeCoroutinesCombine'
-end

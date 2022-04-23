@@ -6,7 +6,7 @@ buildscript {
     }
     dependencies {
         classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:1.6.10")
-      AppDependencies.plugins.forEach { dependency ->
+        AppDependencies.plugins.forEach { dependency ->
             classpath(dependency)
         }
     }
@@ -24,5 +24,6 @@ allprojects {
 
 // https://youtrack.jetbrains.com/issue/KT-49109
 rootProject.plugins.withType<org.jetbrains.kotlin.gradle.targets.js.nodejs.NodeJsRootPlugin> {
-    rootProject.the<org.jetbrains.kotlin.gradle.targets.js.nodejs.NodeJsRootExtension>().nodeVersion = "16.0.0"
+    rootProject.the<org.jetbrains.kotlin.gradle.targets.js.nodejs.NodeJsRootExtension>().nodeVersion =
+        "16.0.0"
 }

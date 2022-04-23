@@ -39,13 +39,10 @@ object CommonTestDependencies {
 
 object CommonPlugins {
     val plugins = listOf(
-        "com.android.library",
         "kotlinx-serialization",
-        "com.squareup.sqldelight",
-        "com.rickclephas.kmp.nativecoroutines",
+        "com.squareup.sqldelight"
     )
     val kotlinPlugins = listOf(
-        "multiplatform",
-        "native.cocoapods"
+        "multiplatform"
     )
 }
