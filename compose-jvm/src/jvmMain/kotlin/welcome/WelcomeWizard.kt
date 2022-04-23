@@ -10,33 +10,39 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.awt.ComposeWindow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
 import com.baseio.kmm.welcome.Language
 import com.baseio.kmm.welcome.LanguageDropdownModel
 import com.baseio.kmm.welcome.LanguageLoader
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import theme.CalibreColorPalette
+import theme.CalibreColorProvider
 import java.awt.FileDialog
 import java.io.File
 
 
 @Composable
 fun WelcomeWizard(window: ComposeWindow) {
-    Column {
-        WWHeadline()
-        Divider()
-        LanguageDropDown()
-        Spacer(Modifier.height(48.dp))
-        FileLocationChooser(window)
-        Spacer(Modifier.weight(1f))
-        Text(
-            "If you are moving calibre from an old computer to a new one, please read the instructions.",
-            Modifier.padding(24.dp)
-        )
-        Divider()
+    Box(Modifier.background(CalibreColorProvider.colors.uiBackground)) {
+        Column {
+            WWHeadline()
+            Divider(color = CalibreColorProvider.colors.lineColor)
+            LanguageDropDown()
+            Spacer(Modifier.height(48.dp))
+            FileLocationChooser(window)
+            Spacer(Modifier.weight(1f))
+            Text(
+                "If you are moving calibre from an old computer to a new one, please read the instructions.",
+                Modifier.padding(24.dp), style = TextStyle(color = CalibreColorProvider.colors.textPrimary)
+            )
+            Divider(color = CalibreColorProvider.colors.lineColor)
 
-        NavigationButtons()
+            NavigationButtons()
+        }
     }
+
 }
 
 @Composable
@@ -47,9 +53,11 @@ fun NavigationButtons() {
             onClick = {
 
             },
-            colors = ButtonDefaults.buttonColors(backgroundColor = Color.Transparent),
+            colors = ButtonDefaults.buttonColors(
+                backgroundColor = CalibreColorProvider.colors.buttonColor
+            ),
         ) {
-            Text("< Back")
+            Text("< Back", style = TextStyle(color = CalibreColorProvider.colors.buttonTextColor))
         }
 
         Spacer(Modifier.width(12.dp))
@@ -58,9 +66,11 @@ fun NavigationButtons() {
             onClick = {
 
             },
-            colors = ButtonDefaults.buttonColors(backgroundColor = Color.Transparent),
+            colors = ButtonDefaults.buttonColors(
+                backgroundColor = CalibreColorProvider.colors.buttonColor
+            ),
         ) {
-            Text("Next >")
+            Text("Next >", style = TextStyle(color = CalibreColorProvider.colors.buttonTextColor))
         }
         Spacer(Modifier.width(12.dp))
 
@@ -68,9 +78,11 @@ fun NavigationButtons() {
             onClick = {
 
             },
-            colors = ButtonDefaults.buttonColors(backgroundColor = Color.Transparent),
+            colors = ButtonDefaults.buttonColors(
+                backgroundColor = CalibreColorProvider.colors.buttonColor
+            ),
         ) {
-            Text("Cancel")
+            Text("Cancel", style = TextStyle(color = CalibreColorProvider.colors.buttonTextColor))
         }
         Spacer(Modifier.width(12.dp))
 
@@ -81,9 +93,15 @@ fun NavigationButtons() {
 fun FileLocationChooser(window: ComposeWindow) {
 
     Column(Modifier.padding(24.dp)) {
-        Text("Choose a location for your books. When you add books to calibre, they will be copied here. Use an empty folder for a new calibre library:")
+        Text(
+            "Choose a location for your books. When you add books to calibre, they will be copied here. Use an empty folder for a new calibre library:",
+            style = TextStyle(color = CalibreColorProvider.colors.textPrimary)
+        )
         FolderChooserButtons(window)
-        Text("If a calibre library already exists at the newly selected location, calibre will use it automatically.")
+        Text(
+            "If a calibre library already exists at the newly selected location, calibre will use it automatically.",
+            style = TextStyle(color = CalibreColorProvider.colors.textPrimary)
+        )
     }
 }
 
@@ -99,22 +117,29 @@ private fun FolderChooserButtons(
             onClick = {
 
             },
-            colors = ButtonDefaults.buttonColors(backgroundColor = Color.Transparent),
+            colors = ButtonDefaults.buttonColors(
+                backgroundColor = CalibreColorProvider.colors.buttonColor
+            ),
             modifier = Modifier.fillMaxWidth(0.6f)
         ) {
-            Text(otherFolder)
+            Text(otherFolder, style = TextStyle(color = CalibreColorProvider.colors.buttonTextColor))
         }
 
         Spacer(Modifier.width(24.dp))
 
-        Button(onClick = {
-            val fileDialog = FileDialog(window)
-            fileDialog.isMultipleMode = false
-            fileDialog.mode = FileDialog.LOAD
-            fileDialog.isVisible = true
-            otherFolder = fileDialog.files.firstOrNull()?.absolutePath ?: ""
-        }, modifier = Modifier.fillMaxWidth(0.4f)) {
-            Text("Change")
+        Button(
+            onClick = {
+                val fileDialog = FileDialog(window)
+                fileDialog.isMultipleMode = false
+                fileDialog.mode = FileDialog.LOAD
+                fileDialog.isVisible = true
+                otherFolder = fileDialog.files.firstOrNull()?.absolutePath ?: ""
+            }, colors = ButtonDefaults.buttonColors(
+                backgroundColor = CalibreColorProvider.colors.buttonColor
+            ),
+            modifier = Modifier.fillMaxWidth(0.4f)
+        ) {
+            Text("Change", style = TextStyle(color = CalibreColorProvider.colors.buttonTextColor))
         }
     }
 }
@@ -133,29 +158,43 @@ fun LanguageDropDown() {
     }
 
     androidx.compose.foundation.layout.Box(
-        modifier = Modifier.padding(24.dp)
+        modifier = Modifier.padding(24.dp).background(CalibreColorProvider.colors.uiBackground)
     ) {
         Row() {
-            Text("Choose your language: ", Modifier.align(Alignment.CenterVertically))
-            Button(onClick = {
-                isOpen = true
-            }, colors = ButtonDefaults.buttonColors(backgroundColor = Color.Transparent)) {
-                Text(languages?.languages?.get(selectedIndex)?.name ?: "Not Selected")
-            }
-        }
-
-        if (isOpen) {
-            LazyColumn {
-                itemsIndexed(languages?.languages ?: emptyList()) { index: Int, it: Language ->
-                    DropdownMenuItem(onClick = {
-                        selectedIndex = index
-                        isOpen = false
-                    }, modifier = Modifier.background(Color.White)) {
-                        Text(it.name?:"")
+            Text(
+                "Choose your language: ",
+                Modifier.align(Alignment.CenterVertically),
+                style = TextStyle(color = CalibreColorProvider.colors.textPrimary)
+            )
+            if (isOpen) {
+                LazyColumn {
+                    itemsIndexed(languages?.languages ?: emptyList()) { index: Int, it: Language ->
+                        DropdownMenuItem(onClick = {
+                            selectedIndex = index
+                            isOpen = false
+                        }) {
+                            Text(it.name ?: "", style = TextStyle(color = CalibreColorProvider.colors.textPrimary))
+                        }
                     }
                 }
+            } else {
+                Button(
+                    onClick = {
+                        isOpen = true
+                    },
+                    colors = ButtonDefaults.buttonColors(
+                        backgroundColor = CalibreColorProvider.colors.buttonColor
+                    ),
+                ) {
+                    Text(
+                        languages?.languages?.get(selectedIndex)?.name ?: "Not Selected",
+                        style = TextStyle(color = CalibreColorProvider.colors.buttonTextColor)
+                    )
+                }
             }
+
         }
+
 
     }
 
@@ -163,15 +202,28 @@ fun LanguageDropDown() {
 
 @Composable
 fun WWHeadline() {
-    ListItem(
-        Modifier.padding(4.dp),
-        secondaryText = { Text("The one stop solution to all your e-book needs.") },
-        text = { Text("Welcome to CalibreKMM") }, trailing = {
-            Image(
-                painter = painterResource("images/library.png"),
-                contentDescription = null,
-                Modifier.size(64.dp)
-            )
-        })
+    Box(Modifier.background(CalibreColorProvider.colors.appBarColor)) {
+        ListItem(
+            Modifier.padding(4.dp),
+            secondaryText = {
+                Text(
+                    "The one stop solution to all your e-book needs.",
+                    style = TextStyle(color = CalibreColorProvider.colors.appBarTextSubTitleColor)
+                )
+            },
+            text = {
+                Text(
+                    "Welcome to CalibreKMM",
+                    style = TextStyle(color = CalibreColorProvider.colors.appBarTextTitleColor)
+                )
+            }, trailing = {
+                Image(
+                    painter = painterResource("images/library.png"),
+                    contentDescription = null,
+                    Modifier.size(64.dp)
+                )
+            })
+    }
+
 
 }

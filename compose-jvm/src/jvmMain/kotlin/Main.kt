@@ -5,11 +5,12 @@ import androidx.compose.ui.awt.ComposeWindow
 import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.application
 import com.baseio.kmm.di.initSharedDependencies
+import theme.CalibreTheme
 
 @Composable
 @Preview
 fun App(window: ComposeWindow) {
-    MaterialTheme {
+    CalibreTheme {
         WelcomeWizard(window)
     }
 }
