@@ -44,6 +44,7 @@ kotlin {
     val jvmMain by getting {
       dependencies {
         implementation(project(":shared"))
+        implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.1")
         implementation(compose.desktop.currentOs)
       }
     }
