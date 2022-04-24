@@ -15,7 +15,15 @@ import com.baseio.kmm.welcome.Language
 import com.baseio.kmm.welcome.LanguageDropdownModel
 import com.baseio.kmm.welcome.LanguageLoader
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.consumeAsFlow
+import kotlinx.coroutines.flow.receiveAsFlow
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import navigation.Navigator
+import navigation.WelcomeWizard
+import navigation.screen
 import theme.CalibreColorProvider
 import java.awt.FileDialog
 import java.io.File
@@ -23,20 +31,37 @@ import javax.swing.JFileChooser
 
 @Composable
 fun WelcomeWizard(window: ComposeWindow) {
+
+    var navigator by remember { mutableStateOf<Navigator?>(null) }
+
     Column(Modifier.background(CalibreColorProvider.colors.uiBackground)) {
         WWHeadline()
-        WZDLanguageFolderPathSelectionScreen( window)
-
+        Navigator(initialScreen = WelcomeWizard.Screen1) {
+            navigator = this
+            screen(WelcomeWizard.Screen1) {
+                WZDLanguageFolderPathSelectionScreen(window)
+            }
+            screen(WelcomeWizard.Screen2) {
+                WZDDeviceModelSelectionScreen(this@Navigator)
+            }
+        }
+        NavigationButtons(navigator)
     }
-
-
 }
 
 @Composable
-private fun WZDLanguageFolderPathSelectionScreen(
+fun ColumnScope.WZDDeviceModelSelectionScreen(navigator: Navigator) {
+    Column(Modifier.weight(1f)) {
+
+    }
+}
+
+
+@Composable
+private fun ColumnScope.WZDLanguageFolderPathSelectionScreen(
     window: ComposeWindow
 ) {
-    Column(Modifier) {
+    Column(Modifier.weight(1f)) {
         Divider(color = CalibreColorProvider.colors.lineColor)
         LanguageDropDown()
         Spacer(Modifier.height(48.dp))
@@ -47,36 +72,49 @@ private fun WZDLanguageFolderPathSelectionScreen(
             Modifier.padding(24.dp), style = TextStyle(color = CalibreColorProvider.colors.textPrimary)
         )
         Divider(color = CalibreColorProvider.colors.lineColor)
-        NavigationButtons()
+
     }
 }
 
 @Composable
-fun NavigationButtons() {
+fun NavigationButtons(navigator: Navigator?) {
+    var isBackButtonEnabled by remember { mutableStateOf((navigator?.screenCount ?: 0) > 1) }
+    var isNextButtonEnabled by remember { mutableStateOf((navigator?.totalScreens ?: 0) > 1) }
+
+    LaunchedEffect(Unit) {
+        launch {
+            navigator?.changePublisher?.receiveAsFlow()?.collect {
+                isBackButtonEnabled = navigator.screenCount > 1
+                isNextButtonEnabled = navigator.totalScreens > 1
+            }
+        }
+    }
 
     Row(horizontalArrangement = Arrangement.End, modifier = Modifier.fillMaxWidth()) {
         Button(
             onClick = {
-
+                navigator?.goBack()
             },
             colors = ButtonDefaults.buttonColors(
-                backgroundColor = CalibreColorProvider.colors.buttonColor
-            ),
+                backgroundColor = CalibreColorProvider.colors.buttonColor,
+                disabledBackgroundColor = CalibreColorProvider.colors.buttonColor.copy(alpha = 0.5f)
+            ), enabled = isBackButtonEnabled
         ) {
-            Text("< Back", style = TextStyle(color = CalibreColorProvider.colors.buttonTextColor))
+            Text("Back", style = TextStyle(color = CalibreColorProvider.colors.buttonTextColor))
         }
 
         Spacer(Modifier.width(12.dp))
 
         Button(
             onClick = {
-
+                navigator?.navigate(WelcomeWizard.Screen2)
             },
             colors = ButtonDefaults.buttonColors(
-                backgroundColor = CalibreColorProvider.colors.buttonColor
-            ),
+                backgroundColor = CalibreColorProvider.colors.buttonColor,
+                disabledBackgroundColor = CalibreColorProvider.colors.buttonColor.copy(alpha = 0.5f)
+            ), enabled = isNextButtonEnabled
         ) {
-            Text("Next >", style = TextStyle(color = CalibreColorProvider.colors.buttonTextColor))
+            Text("Next", style = TextStyle(color = CalibreColorProvider.colors.buttonTextColor))
         }
         Spacer(Modifier.width(12.dp))
 
