@@ -1,6 +1,5 @@
 package theme
 
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Colors
 import androidx.compose.material.MaterialTheme
@@ -8,6 +7,13 @@ import androidx.compose.material.Shapes
 import androidx.compose.runtime.*
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import com.github.tkuenneth.nativeparameterstoreaccess.Dconf
+import com.github.tkuenneth.nativeparameterstoreaccess.Dconf.HAS_DCONF
+import com.github.tkuenneth.nativeparameterstoreaccess.MacOSDefaults
+import com.github.tkuenneth.nativeparameterstoreaccess.NativeParameterStoreAccess.IS_MACOS
+import com.github.tkuenneth.nativeparameterstoreaccess.NativeParameterStoreAccess.IS_WINDOWS
+import com.github.tkuenneth.nativeparameterstoreaccess.WindowsRegistry
+import kotlinx.coroutines.*
 
 val CalibreColor = Color(0xff411540)
 val DarkAppBarColor = Color(0xff1a1b1e)
@@ -19,7 +25,6 @@ val LineColorLight = Color.Black.copy(alpha = 0.4f)
 val LineColorDark = Color.White.copy(alpha = 0.3f)
 const val AlphaNearOpaque = 0.95f
 const val AlphaNearTransparent = 0.15f
-
 
 
 private val LightColorPalette = CalibreColorPalette(
@@ -74,21 +79,59 @@ val CalibreShapes = Shapes(
     large = RoundedCornerShape(10.dp)
 )
 
+fun isSystemInDarkTheme(): Boolean = when {
+    IS_WINDOWS -> {
+        val result = WindowsRegistry.getWindowsRegistryEntry(
+            "HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Themes\\Personalize",
+            "AppsUseLightTheme"
+        )
+        result == 0x0
+    }
+    IS_MACOS -> {
+        val result = MacOSDefaults.getDefaultsEntry("AppleInterfaceStyle")
+        result == "Dark"
+    }
+    HAS_DCONF -> {
+        val result = Dconf.getDconfEntry("/org/gnome/desktop/interface/gtk-theme")
+        result.toLowerCase().contains("dark")
+    }
+    else -> false
+}
+
 @Composable
 fun CalibreTheme(
-    isDarkTheme: Boolean = isSystemInDarkTheme(),
     content: @Composable () -> Unit
 ) {
-    val colors = if (isDarkTheme) DarkColorPalette else LightColorPalette
+    var isInDarkMode by remember{
+        mutableStateOf(isSystemInDarkTheme())
+    }
+
+    val colors = calibreColorPalette(isInDarkMode)
+
+    LaunchedEffect(Unit) {
+        this.launch {
+            while (isActive) {
+                val newMode = isSystemInDarkTheme()
+                if (isInDarkMode != newMode) {
+                    isInDarkMode = newMode
+                }
+                delay(1000)
+            }
+        }
+    }
+
 
     ProvideCalibreColors(colors) {
         MaterialTheme(
-            colors = debugColors(isDarkTheme),
+            colors = debugColors(isInDarkMode),
             shapes = CalibreShapes,
             content = content
         )
     }
 }
+
+private fun calibreColorPalette(isInDarkMode: Boolean) =
+    if (isInDarkMode) DarkColorPalette else LightColorPalette
 
 object CalibreColorProvider {
     val colors: CalibreColorPalette
@@ -96,27 +139,28 @@ object CalibreColorProvider {
         get() = LocalCalibreColor.current
 }
 
-class CalibreColorPalette(brand: Color,
-                          accent: Color,
-                          uiBackground: Color,
-                          textPrimary: Color = brand,
-                          textSecondary: Color,
-                          error: Color,
-                          statusBarColor: Color,
-                          isDark: Boolean,
-                          buttonColor: Color,
-                          buttonTextColor: Color,
-                          darkBackground: Color,
-                          appBarColor: Color,
-                          lineColor: Color,
-                          bottomNavSelectedColor: Color,
-                          bottomNavUnSelectedColor: Color,
-                          appBarIconColor: Color,
-                          appBarTextTitleColor: Color,
-                          appBarTextSubTitleColor: Color,
-                          sendButtonDisabled: Color,
-                          sendButtonEnabled: Color
-){
+class CalibreColorPalette(
+    brand: Color,
+    accent: Color,
+    uiBackground: Color,
+    textPrimary: Color = brand,
+    textSecondary: Color,
+    error: Color,
+    statusBarColor: Color,
+    isDark: Boolean,
+    buttonColor: Color,
+    buttonTextColor: Color,
+    darkBackground: Color,
+    appBarColor: Color,
+    lineColor: Color,
+    bottomNavSelectedColor: Color,
+    bottomNavUnSelectedColor: Color,
+    appBarIconColor: Color,
+    appBarTextTitleColor: Color,
+    appBarTextSubTitleColor: Color,
+    sendButtonDisabled: Color,
+    sendButtonEnabled: Color
+) {
     var brand by mutableStateOf(brand)
         private set
     var accent by mutableStateOf(accent)
@@ -191,8 +235,8 @@ fun ProvideCalibreColors(
     colors: CalibreColorPalette,
     content: @Composable () -> Unit
 ) {
-    val colorPalette = remember { colors }
-    colorPalette.update(colors)
+    var colorPalette by remember { mutableStateOf(colors) }
+    colorPalette = (colors)
     CompositionLocalProvider(LocalCalibreColor provides colorPalette, content = content)
 }
 
