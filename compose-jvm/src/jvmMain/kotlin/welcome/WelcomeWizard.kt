@@ -23,25 +23,32 @@ import javax.swing.JFileChooser
 
 @Composable
 fun WelcomeWizard(window: ComposeWindow) {
-    Scaffold (topBar = {
+    Column(Modifier.background(CalibreColorProvider.colors.uiBackground)) {
         WWHeadline()
-    }, bottomBar = {
-        NavigationButtons()
-    }, backgroundColor = CalibreColorProvider.colors.uiBackground) {
-        Column(Modifier.padding(it)) {
-            Divider(color = CalibreColorProvider.colors.lineColor)
-            LanguageDropDown()
-            Spacer(Modifier.height(48.dp))
-            FileLocationChooser(window)
-            Spacer(Modifier.weight(1f))
-            Text(
-                "If you are moving calibre from an old computer to a new one, please read the instructions.",
-                Modifier.padding(24.dp), style = TextStyle(color = CalibreColorProvider.colors.textPrimary)
-            )
-            Divider(color = CalibreColorProvider.colors.lineColor)
-        }
+        WZDLanguageFolderPathSelectionScreen( window)
+
     }
 
+
+}
+
+@Composable
+private fun WZDLanguageFolderPathSelectionScreen(
+    window: ComposeWindow
+) {
+    Column(Modifier) {
+        Divider(color = CalibreColorProvider.colors.lineColor)
+        LanguageDropDown()
+        Spacer(Modifier.height(48.dp))
+        FileLocationChooser(window)
+        Spacer(Modifier.weight(1f))
+        Text(
+            "If you are moving calibre from an old computer to a new one, please read the instructions.",
+            Modifier.padding(24.dp), style = TextStyle(color = CalibreColorProvider.colors.textPrimary)
+        )
+        Divider(color = CalibreColorProvider.colors.lineColor)
+        NavigationButtons()
+    }
 }
 
 @Composable
@@ -182,7 +189,7 @@ fun LanguageDropDown() {
         }
     }
 
-    androidx.compose.foundation.layout.Box(
+    Box(
         modifier = Modifier.padding(24.dp).background(CalibreColorProvider.colors.uiBackground)
     ) {
         Row() {
@@ -227,28 +234,24 @@ fun LanguageDropDown() {
 
 @Composable
 fun WWHeadline() {
-    Box(Modifier.background(CalibreColorProvider.colors.appBarColor)) {
-        ListItem(
-            Modifier.padding(4.dp),
-            secondaryText = {
-                Text(
-                    "The one stop solution to all your e-book needs.",
-                    style = TextStyle(color = CalibreColorProvider.colors.appBarTextSubTitleColor)
-                )
-            },
-            text = {
-                Text(
-                    "Welcome to CalibreKMM",
-                    style = TextStyle(color = CalibreColorProvider.colors.appBarTextTitleColor)
-                )
-            }, trailing = {
-                Image(
-                    painter = painterResource("images/library.png"),
-                    contentDescription = null,
-                    Modifier.size(64.dp)
-                )
-            })
-    }
+    TopAppBar(title = {
+        Column {
+            Text(
+                "Welcome to CalibreKMM",
+                style = TextStyle(color = CalibreColorProvider.colors.appBarTextTitleColor)
+            )
+            Text(
+                "The one stop solution to all your e-book needs.",
+                style = TextStyle(color = CalibreColorProvider.colors.appBarTextSubTitleColor)
+            )
+        }
+    }, actions = {
+        Image(
+            painter = painterResource("images/library.png"),
+            contentDescription = null,
+            Modifier.size(64.dp)
+        )
+    }, backgroundColor = CalibreColorProvider.colors.appBarColor)
 
 
 }
