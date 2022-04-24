@@ -44,8 +44,6 @@ kotlin {
     val jvmMain by getting {
       dependencies {
         implementation(project(":shared"))
-        implementation("androidx.compose.ui:ui-util:1.1.0")
-        implementation("com.google.code.gson:gson:2.9.0")
         implementation(compose.desktop.currentOs)
       }
     }
