@@ -1,4 +1,3 @@
-import androidx.compose.material.MaterialTheme
 import androidx.compose.desktop.ui.tooling.preview.Preview
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.awt.ComposeWindow
@@ -17,7 +16,7 @@ fun App(window: ComposeWindow) {
 
 fun main() = application {
     initSharedDependencies()
-    Window(onCloseRequest = ::exitApplication, title = "CalibreKMM Welcome wizard") {
+    Window(onCloseRequest = ::exitApplication, title = "CalibreKMP Welcome wizard") {
         App(window)
     }
 }

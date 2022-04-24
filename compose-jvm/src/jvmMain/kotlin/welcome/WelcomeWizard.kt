@@ -21,12 +21,14 @@ import java.awt.FileDialog
 import java.io.File
 import javax.swing.JFileChooser
 
-
 @Composable
 fun WelcomeWizard(window: ComposeWindow) {
-    Box(Modifier.background(CalibreColorProvider.colors.uiBackground)) {
-        Column {
-            WWHeadline()
+    Scaffold (topBar = {
+        WWHeadline()
+    }, bottomBar = {
+        NavigationButtons()
+    }, backgroundColor = CalibreColorProvider.colors.uiBackground) {
+        Column(Modifier.padding(it)) {
             Divider(color = CalibreColorProvider.colors.lineColor)
             LanguageDropDown()
             Spacer(Modifier.height(48.dp))
@@ -37,8 +39,6 @@ fun WelcomeWizard(window: ComposeWindow) {
                 Modifier.padding(24.dp), style = TextStyle(color = CalibreColorProvider.colors.textPrimary)
             )
             Divider(color = CalibreColorProvider.colors.lineColor)
-
-            NavigationButtons()
         }
     }
 
@@ -128,28 +128,7 @@ private fun FolderChooserButtons(
 
         Button(
             onClick = {
-                val dir = if (System.getProperty("os.name").contains("Mac")) {
-                    System.setProperty("apple.awt.fileDialogForDirectories", "true")
-                    val dialog = FileDialog(window)
-                    dialog.isVisible = true
-                    val name = dialog.file
-                    val dir = dialog.directory
-                    if (name == null || dir == null) null else File(dialog.directory, dialog.file)
-                } else {
-                    val chooser = JFileChooser()
-                    chooser.fileSelectionMode = JFileChooser.DIRECTORIES_ONLY
-                    chooser.dialogTitle = "Choose destination"
-                    val result = chooser.showOpenDialog(null)
-                    if (result == JFileChooser.APPROVE_OPTION) {
-                        val dir = chooser.selectedFile
-                        if (dir == null) null
-                        if (dir!!.absolutePath.trim { it <= ' ' }.isEmpty()) null else dir
-                    } else {
-                        null
-                    }
-                }
-
-
+                val dir = folderPicker(window)
                 otherFolder = dir?.absolutePath ?: ""
             }, colors = ButtonDefaults.buttonColors(
                 backgroundColor = CalibreColorProvider.colors.buttonColor
@@ -160,6 +139,35 @@ private fun FolderChooserButtons(
         }
     }
 }
+
+private fun folderPicker(window: ComposeWindow) =
+    if (System.getProperty("os.name").contains("Mac")) {
+        System.setProperty("apple.awt.fileDialogForDirectories", "true")
+        val dialog = FileDialog(window)
+        dialog.isVisible = true
+        val name = dialog.file
+        val dir = dialog.directory
+        if (name == null || dir == null) null else File(dialog.directory, dialog.file)
+    } else {
+        val chooser = JFileChooser()
+        chooser.fileSelectionMode = JFileChooser.DIRECTORIES_ONLY
+        chooser.dialogTitle = "Choose destination"
+        val result = chooser.showOpenDialog(null)
+        if (result == JFileChooser.APPROVE_OPTION) {
+            val dir = chooser.selectedFile
+            dir?.let {
+                if (dir.absolutePath.trim { it <= ' ' }.isEmpty()) {
+                    null
+                } else {
+                    dir
+                }
+            } ?: run {
+                null
+            }
+        } else {
+            null
+        }
+    }
 
 @Composable
 fun LanguageDropDown() {
