@@ -1,7 +1,4 @@
-import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
-import androidx.compose.foundation.border
+import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -53,22 +50,30 @@ fun WelcomeWizard(window: ComposeWindow) {
 @Composable
 fun ColumnScope.WZDDeviceModelSelectionScreen(window: ComposeWindow) {
     val manufactures by remember { mutableStateOf(ManufacturesDevicesMap.manufacturersMap) }
+    var devices by remember { mutableStateOf(manufactures.first().devices) }
     Column(Modifier.weight(1f)) {
         Text(
             "Choose your e-book device, If your device is not in the list, choose a \"Generic\" device.",
             Modifier.padding(12.dp), style = TextStyle(color = CalibreColorProvider.colors.textPrimary)
         )
 
-        Row() {
-            CommonDeviceChooser(Modifier.weight(1f), "Manufacturers", manufactures.map { it.name })
-            CommonDeviceChooser(Modifier.weight(1f), "Devices", manufactures.first().devices)
+        Row {
+            CommonDeviceChooser(Modifier.weight(1f), "Manufacturers", manufactures.map { it.name }) { nameSelected ->
+                devices = manufactures.find { it.name == nameSelected }!!.devices
+            }
+            CommonDeviceChooser(Modifier.weight(1f), "Devices", devices)
         }
 
     }
 }
 
 @Composable
-private fun CommonDeviceChooser(modifier: Modifier, title: String, items: List<String>) {
+private fun CommonDeviceChooser(
+    modifier: Modifier,
+    title: String,
+    items: List<String>,
+    selectedManufacturer: (String) -> Unit = {}
+) {
     Column(modifier.padding(16.dp)) {
         Text(
             title,
@@ -81,11 +86,16 @@ private fun CommonDeviceChooser(modifier: Modifier, title: String, items: List<S
         ) {
             LazyColumn(Modifier.padding(4.dp)) {
                 items(items) { item ->
-                    Text(
-                        item,
-                        style = TextStyle(color = CalibreColorProvider.colors.textPrimary),
-                        modifier = Modifier.padding(4.dp)
-                    )
+                    Box(Modifier.clickable {
+                        selectedManufacturer(item)
+                    }.fillMaxWidth()) {
+                        Text(
+                            item,
+                            style = TextStyle(color = CalibreColorProvider.colors.textPrimary),
+                            modifier = Modifier.padding(4.dp)
+                        )
+                    }
+
                 }
             }
         }
