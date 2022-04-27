@@ -1,3 +1,4 @@
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -11,6 +12,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.awt.ComposeWindow
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
@@ -67,17 +69,17 @@ fun ColumnScope.WZDDeviceModelSelectionScreen(window: ComposeWindow) {
 
 @Composable
 private fun CommonDeviceChooser(modifier: Modifier, title: String, items: List<String>) {
-    Column(modifier) {
+    Column(modifier.padding(16.dp)) {
         Text(
             title,
-            Modifier.padding(12.dp), style = TextStyle(color = CalibreColorProvider.colors.textPrimary)
+            Modifier.padding(vertical = 12.dp), style = TextStyle(color = CalibreColorProvider.colors.textPrimary)
         )
         Surface(
             elevation = 4.dp,
-            modifier = Modifier.fillMaxSize().padding(16.dp),
-            color = CalibreColorProvider.colors.uiBackground
+            modifier = Modifier.fillMaxSize(),
+            color = CalibreColorProvider.colors.uiBackground, border = BorderStroke(1.dp, color = Color.White)
         ) {
-            LazyColumn {
+            LazyColumn(Modifier.padding(4.dp)) {
                 items(items) { item ->
                     Text(
                         item,
