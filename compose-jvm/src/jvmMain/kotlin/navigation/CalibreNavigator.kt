@@ -7,7 +7,6 @@ import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.launch
 import java.util.*
-import java.util.concurrent.Flow
 
 class CalibreNavigator(initialScreen: BackstackScreen) : Navigator {
     private val backStack: Deque<BackstackScreen> = LinkedList()
@@ -35,7 +34,7 @@ class CalibreNavigator(initialScreen: BackstackScreen) : Navigator {
 
     override fun goBack() {
         if (backStack.size > 1) {
-            val screen = backStack.pollLast()
+            backStack.pollLast()
             backStack.peek()?.let {
                 currentScreen.value = it
                 navigatorScope.launch {

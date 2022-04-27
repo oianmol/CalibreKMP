@@ -16,8 +16,7 @@ import com.github.tkuenneth.nativeparameterstoreaccess.WindowsRegistry
 import kotlinx.coroutines.*
 
 val CalibreColor = Color(0xff411540)
-val DarkAppBarColor = Color(0xff1a1b1e)
-val DarkBackground = Color(0xff1b1d21)
+val DarkBackground = Color(50, 50, 50)
 val LineColorLight = Color.Black.copy(alpha = 0.4f)
 val LineColorDark = Color.White.copy(alpha = 0.3f)
 
@@ -42,7 +41,7 @@ private val DarkColorPalette = CalibreColorPalette(
     isDark = true,
     buttonColor = Color.White,
     buttonTextColor = Color.Black,
-    appBarColor = DarkAppBarColor,
+    appBarColor = Color(30,30,30),
     lineColor = LineColorDark,
     appBarTextTitleColor = Color.White,
     appBarTextSubTitleColor = Color.LightGray,
@@ -68,7 +67,7 @@ fun isSystemInDarkTheme(): Boolean = when {
     }
     HAS_DCONF -> {
         val result = Dconf.getDconfEntry("/org/gnome/desktop/interface/gtk-theme")
-        result.toLowerCase().contains("dark")
+        result.lowercase().contains("dark")
     }
     else -> false
 }

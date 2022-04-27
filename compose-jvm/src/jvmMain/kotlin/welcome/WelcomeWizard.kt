@@ -1,8 +1,11 @@
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -15,9 +18,6 @@ import com.baseio.kmm.welcome.Language
 import com.baseio.kmm.welcome.LanguageDropdownModel
 import com.baseio.kmm.welcome.LanguageLoader
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.flow.consumeAsFlow
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -31,7 +31,6 @@ import javax.swing.JFileChooser
 
 @Composable
 fun WelcomeWizard(window: ComposeWindow) {
-
     var navigator by remember { mutableStateOf<Navigator?>(null) }
 
     Column(Modifier.background(CalibreColorProvider.colors.uiBackground)) {
@@ -42,7 +41,7 @@ fun WelcomeWizard(window: ComposeWindow) {
                 WZDLanguageFolderPathSelectionScreen(window)
             }
             screen(WelcomeWizard.Screen2) {
-                WZDDeviceModelSelectionScreen(this@Navigator)
+                WZDDeviceModelSelectionScreen(window)
             }
         }
         NavigationButtons(navigator)
@@ -50,9 +49,44 @@ fun WelcomeWizard(window: ComposeWindow) {
 }
 
 @Composable
-fun ColumnScope.WZDDeviceModelSelectionScreen(navigator: Navigator) {
+fun ColumnScope.WZDDeviceModelSelectionScreen(window: ComposeWindow) {
+    val manufactures by remember { mutableStateOf(ManufacturesDevicesMap.manufacturersMap) }
     Column(Modifier.weight(1f)) {
+        Text(
+            "Choose your e-book device, If your device is not in the list, choose a \"Generic\" device.",
+            Modifier.padding(12.dp), style = TextStyle(color = CalibreColorProvider.colors.textPrimary)
+        )
 
+        Row() {
+            CommonDeviceChooser(Modifier.weight(1f), "Manufacturers", manufactures.map { it.name })
+            CommonDeviceChooser(Modifier.weight(1f), "Devices", manufactures.first().devices)
+        }
+
+    }
+}
+
+@Composable
+private fun CommonDeviceChooser(modifier: Modifier, title: String, items: List<String>) {
+    Column(modifier) {
+        Text(
+            title,
+            Modifier.padding(12.dp), style = TextStyle(color = CalibreColorProvider.colors.textPrimary)
+        )
+        Surface(
+            elevation = 4.dp,
+            modifier = Modifier.fillMaxSize().padding(16.dp),
+            color = CalibreColorProvider.colors.uiBackground
+        ) {
+            LazyColumn {
+                items(items) { item ->
+                    Text(
+                        item,
+                        style = TextStyle(color = CalibreColorProvider.colors.textPrimary),
+                        modifier = Modifier.padding(4.dp)
+                    )
+                }
+            }
+        }
     }
 }
 
@@ -90,46 +124,48 @@ fun NavigationButtons(navigator: Navigator?) {
         }
     }
 
-    Row(horizontalArrangement = Arrangement.End, modifier = Modifier.fillMaxWidth()) {
-        Button(
-            onClick = {
-                navigator?.goBack()
-            },
-            colors = ButtonDefaults.buttonColors(
-                backgroundColor = CalibreColorProvider.colors.buttonColor,
-                disabledBackgroundColor = CalibreColorProvider.colors.buttonColor.copy(alpha = 0.5f)
-            ), enabled = isBackButtonEnabled
-        ) {
-            Text("Back", style = TextStyle(color = CalibreColorProvider.colors.buttonTextColor))
+    Surface(elevation = 4.dp, color = CalibreColorProvider.colors.uiBackground) {
+        Row(horizontalArrangement = Arrangement.End, modifier = Modifier.fillMaxWidth()) {
+            Button(
+                onClick = {
+                    navigator?.goBack()
+                },
+                colors = ButtonDefaults.buttonColors(
+                    backgroundColor = CalibreColorProvider.colors.buttonColor,
+                    disabledBackgroundColor = CalibreColorProvider.colors.buttonColor.copy(alpha = 0.5f)
+                ), enabled = isBackButtonEnabled
+            ) {
+                Text("Back", style = TextStyle(color = CalibreColorProvider.colors.buttonTextColor))
+            }
+
+            Spacer(Modifier.width(12.dp))
+
+            Button(
+                onClick = {
+                    navigator?.navigate(WelcomeWizard.Screen2)
+                },
+                colors = ButtonDefaults.buttonColors(
+                    backgroundColor = CalibreColorProvider.colors.buttonColor,
+                    disabledBackgroundColor = CalibreColorProvider.colors.buttonColor.copy(alpha = 0.5f)
+                ), enabled = isNextButtonEnabled
+            ) {
+                Text("Next", style = TextStyle(color = CalibreColorProvider.colors.buttonTextColor))
+            }
+            Spacer(Modifier.width(12.dp))
+
+            Button(
+                onClick = {
+
+                },
+                colors = ButtonDefaults.buttonColors(
+                    backgroundColor = CalibreColorProvider.colors.buttonColor
+                ),
+            ) {
+                Text("Cancel", style = TextStyle(color = CalibreColorProvider.colors.buttonTextColor))
+            }
+            Spacer(Modifier.width(12.dp))
+
         }
-
-        Spacer(Modifier.width(12.dp))
-
-        Button(
-            onClick = {
-                navigator?.navigate(WelcomeWizard.Screen2)
-            },
-            colors = ButtonDefaults.buttonColors(
-                backgroundColor = CalibreColorProvider.colors.buttonColor,
-                disabledBackgroundColor = CalibreColorProvider.colors.buttonColor.copy(alpha = 0.5f)
-            ), enabled = isNextButtonEnabled
-        ) {
-            Text("Next", style = TextStyle(color = CalibreColorProvider.colors.buttonTextColor))
-        }
-        Spacer(Modifier.width(12.dp))
-
-        Button(
-            onClick = {
-
-            },
-            colors = ButtonDefaults.buttonColors(
-                backgroundColor = CalibreColorProvider.colors.buttonColor
-            ),
-        ) {
-            Text("Cancel", style = TextStyle(color = CalibreColorProvider.colors.buttonTextColor))
-        }
-        Spacer(Modifier.width(12.dp))
-
     }
 }
 
@@ -139,12 +175,13 @@ fun FileLocationChooser(window: ComposeWindow) {
     Column(Modifier.padding(24.dp)) {
         Text(
             "Choose a location for your books. When you add books to calibre, they will be copied here. Use an empty folder for a new calibre library:",
-            style = TextStyle(color = CalibreColorProvider.colors.textPrimary)
+            style = TextStyle(color = CalibreColorProvider.colors.textPrimary),
+            modifier = Modifier.padding(bottom = 8.dp)
         )
         FolderChooserButtons(window)
         Text(
             "If a calibre library already exists at the newly selected location, calibre will use it automatically.",
-            style = TextStyle(color = CalibreColorProvider.colors.textPrimary)
+            style = TextStyle(color = CalibreColorProvider.colors.textPrimary), modifier = Modifier.padding(top = 8.dp)
         )
     }
 }
@@ -156,18 +193,16 @@ private fun FolderChooserButtons(
     val currentUsersHomeDir = System.getProperty("user.home")
     var otherFolder by remember { mutableStateOf(currentUsersHomeDir + File.separator.toString() + "Calibre Library") }
 
-    Row {
-        Button(
-            onClick = {
-
-            },
-            colors = ButtonDefaults.buttonColors(
-                backgroundColor = CalibreColorProvider.colors.buttonColor
-            ),
-            modifier = Modifier.fillMaxWidth(0.6f)
-        ) {
-            Text(otherFolder, style = TextStyle(color = CalibreColorProvider.colors.buttonTextColor))
-        }
+    Row(horizontalArrangement = Arrangement.Center, verticalAlignment = Alignment.CenterVertically) {
+        Text(
+            otherFolder,
+            style = TextStyle(color = CalibreColorProvider.colors.textPrimary),
+            modifier = Modifier.fillMaxWidth(0.6f).border(
+                1.dp, CalibreColorProvider.colors.lineColor, shape = RoundedCornerShape(15)
+            ).background(
+                CalibreColorProvider.colors.uiBackground,
+            ).padding(12.dp)
+        )
 
         Spacer(Modifier.width(24.dp))
 
@@ -287,7 +322,7 @@ fun WWHeadline() {
         Image(
             painter = painterResource("images/library.png"),
             contentDescription = null,
-            Modifier.size(64.dp)
+            Modifier.size(64.dp).padding(4.dp)
         )
     }, backgroundColor = CalibreColorProvider.colors.appBarColor)
 
